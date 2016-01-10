@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Angular Material - Starter App</title>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
+
+    <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Roboto:400,500,700,400italic'>
+    <link rel="stylesheet" href="/static/bower_components/angular-material/angular-material.css"/>
+    <link rel="stylesheet" href="/static/assets/app.css"/>
+
+    <style type="text/css">
+        /**
+         * Hide when Angular is not yet loaded and initialized
+         */
+        [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+            display: none !important;
+        }
+    </style>
+
+</head>
+
+<body ng-app="koboToolsApp" layout="row" ng-controller="AppController as ac" ng-cloak>
+
+<div flex layout="column" tabIndex="-1" role="main" class="md-whiteframe">
+
+    <md-toolbar layout="row" class="md-whiteframe">
+        <h1>Kobo Data Exporter</h1>
+    </md-toolbar>
+    <md-content flex>
+        <md-card>
+            <md-card-title>
+                <span class="md-headline">Authentication</span>
+            </md-card-title>
+            <md-card-content>
+                <div layout-gt-sm="row">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>User name</label>
+                        <input type="text" ng-model="ac.user.username" ng-readonly="ac.user.token">
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Password</label>
+                        <input type="password" ng-model="ac.user.password" ng-readonly="ac.user.token">
+                    </md-input-container>
+                </div>
+                <md-input-container class="md-block">
+                    <label>Token</label>
+                    <input type="text" ng-model="ac.user.token" ng-readonly="ac.user.username || ac.user.password">
+                </md-input-container>
+            </md-card-content>
+        </md-card>
+
+        <section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
+            <md-button class="md-raised" flex ng-click="ac.user = {}; ac.forms=[];">Clear Authentication</md-button>
+            <md-button class="md-raised md-primary" flex ng-click="ac.loadForms()">Load Forms</md-button>
+        </section>
+        <md-card>
+            <md-card-title>
+                <span class="md-headline">Forms</span>
+            </md-card-title>
+            <md-card-content>
+                <div ng-repeat="form in ac.forms" layout="row" layout-xs="column" layout-wrap>
+                    <div class="md-subhead" flex="100">
+                        {{ form.title }}
+                    </div>
+                    <md-button class="md-raised" flex="100" ng-click="ac.downloadData(form.formid)">
+                        Download Data
+                    </md-button>
+                </div>
+            </md-card-content>
+        </md-card>
+    </md-content>
+    <form name="downloadForm" target="_blank" method="post" action="{{ ac.formAction }}">
+        <input type="hidden" name="userToken" value="{{ ac.user.token }}">
+    </form>
+</div>
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.0.js"></script>
+<script src="/static/bower_components/angular/angular.js"></script>
+<script src="/static/bower_components/angular-animate/angular-animate.js"></script>
+<script src="/static/bower_components/angular-aria/angular-aria.js"></script>
+<script type="text/javascript" src="/static/bower_components/angular-material/angular-material.js"></script>
+
+<script src="/static/src/users/KoboTools.js"></script>
+<script src="/static/src/users/Controllers.js"></script>
+
+<script type="text/javascript">
+
+    angular
+            .module('koboToolsApp', ['ngMaterial', 'koboTools'])
+            .config(function ($mdThemingProvider, $mdIconProvider) {
+
+                $mdIconProvider
+                        .defaultIconSet("./assets/svg/avatars.svg", 128)
+                        .icon("menu", "./assets/svg/menu.svg", 24)
+                        .icon("share", "./assets/svg/share.svg", 24)
+                        .icon("google_plus", "./assets/svg/google_plus.svg", 512)
+                        .icon("hangouts", "./assets/svg/hangouts.svg", 512)
+                        .icon("twitter", "./assets/svg/twitter.svg", 512)
+                        .icon("phone", "./assets/svg/phone.svg", 512);
+
+                $mdThemingProvider.theme('default')
+                        .primaryPalette('indigo')
+                        .accentPalette('red');
+
+            });
+
+</script>
+
+</body>
+</html>
