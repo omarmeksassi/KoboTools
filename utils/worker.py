@@ -88,22 +88,36 @@ def do_work(pk, token):
                     del d[s['xpath']]
 
                     if simplified_name in td:
-                        d[td[simplified_name]] = intermediate
+                        repeated = len([a for a in d.keys() if td[simplified_name] in a])
+                        if repeated > 0:
+                            d["{} ({})".format(td[simplified_name], repeated + 2)] = intermediate
+                        else:
+                            d[td[simplified_name]] = intermediate
                     else:
+                        repeated = len([a for a in d.keys() if simplified_name in a])
+                        if repeated > 0:
+                            d["{} ({})".format(simplified_name, repeated + 2)] = intermediate
+                        else:
+                            d[simplified_name] = intermediate
+
                         d[simplified_name] = intermediate
 
     section_name = data.keys()[0]
 
-    return data[section_name]
+    return data
 
 
-def kobo_to_excel(pk, token, file_or_name):
+def kobo_to_excel(pk, token, file_name):
     import pandas
 
     data = do_work(pk, token)
-    df = pandas.DataFrame.from_dict(data)
-    df = df.set_index('instanceID').sort_values(by='start')
-    df.to_excel(file_or_name)
+    writer = pandas.ExcelWriter(file_name)
+    for key in data.keys():
+        df = pandas.DataFrame.from_dict(data[key])
+        if 'instanceID' in df:
+            df = df.set_index('instanceID').sort_values(by='start')
+        df.to_excel(writer, sheet_name=key)
+    writer.save()
 
 
 def fetch_api_key(username, password):
