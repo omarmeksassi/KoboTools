@@ -34,6 +34,8 @@
             if (!self.user.token) {
                 authRequest = $http.post('/fetch-token', {username: self.user.username, password: self.user.password}).then(function (d) {
                     self.user.token = d.data.token;
+                }).catch(function () {
+                    alert('Invalid username or password.');
                 });
             } else {
                 authRequest = $q.when(true);
