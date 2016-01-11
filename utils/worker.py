@@ -5,7 +5,8 @@ __author__ = 'reyrodrigues'
 from .formhub_utils import generate_export, generate_sections
 from pyxform import create_survey_element_from_dict
 import requests
-
+from collections import OrderedDict
+import math
 
 ONA_API_URL = "https://kc.humanitarianresponse.info/api/v1"
 
@@ -37,7 +38,22 @@ def do_work(pk, token):
     data = generate_export(definition, data, xform_survey=xform_survey)
     sections = generate_sections(definition)
 
-    td = dict(title_dictionary(definition['children']))
+    td = OrderedDict(title_dictionary(definition['children']))
+    dict_copy = td.copy()
+    keys_copy = list(td.keys())
+
+    for item in td.keys():
+        value = td[item]
+        keys = [k for k in keys_copy if value == dict_copy[k]]
+
+        if len(keys) <= 1:
+            continue
+
+        keys.sort()
+
+        fill = math.ceil(math.log(len(keys), 10))
+
+        td[item] = "{} ({})".format(value, str(keys.index(item) + 1).zfill(int(fill)))
 
     for key, data_set in data.iteritems():
         section = sections[key]
@@ -88,18 +104,8 @@ def do_work(pk, token):
                     del d[s['xpath']]
 
                     if simplified_name in td:
-                        repeated = len([a for a in d.keys() if td[simplified_name] in a])
-                        if repeated > 0:
-                            d["{} ({})".format(td[simplified_name], repeated + 2)] = intermediate
-                        else:
-                            d[td[simplified_name]] = intermediate
+                        d[td[simplified_name]] = intermediate
                     else:
-                        repeated = len([a for a in d.keys() if simplified_name in a])
-                        if repeated > 0:
-                            d["{} ({})".format(simplified_name, repeated + 2)] = intermediate
-                        else:
-                            d[simplified_name] = intermediate
-
                         d[simplified_name] = intermediate
 
     section_name = data.keys()[0]
