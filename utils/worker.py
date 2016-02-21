@@ -11,14 +11,19 @@ import math
 ONA_API_URL = "https://kc.humanitarianresponse.info/api/v1"
 
 
-def title_dictionary(children):
+def title_dictionary(children, parent_index=None):
     return_items = []
-    for item in children:
+    for index, item in enumerate(children):
+        if parent_index:
+            name_index = "{}.{}".format(parent_index, str(index + 1).zfill(2))
+        else:
+            name_index = "{}".format(str(index + 1).zfill(2))
+
         if 'label' in item and 'name' in item:
-            return_items.append((item['name'], item['label']))
+            return_items.append((item['name'], "{} {}".format(name_index, item['label'])))
 
         if 'children' in item and item['type'] == 'group':
-            return_items += title_dictionary(item['children'])
+            return_items += title_dictionary(item['children'], name_index)
 
     return set(return_items)
 
@@ -53,7 +58,8 @@ def do_work(pk, token):
 
         fill = math.ceil(math.log(len(keys), 10))
 
-        td[item] = "{} ({})".format(value, str(keys.index(item) + 1).zfill(int(fill)))
+        # td[item] = "{} ({})".format(value, str(keys.index(item) + 1).zfill(int(fill)))
+        td[item] = "{} ({})".format(value, item)
 
     for key, data_set in data.iteritems():
         section = sections[key]
