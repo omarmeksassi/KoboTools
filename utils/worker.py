@@ -123,6 +123,10 @@ def kobo_to_excel(pk, token, file_name):
     import pandas
 
     data = do_work(pk, token)
+    
+    for k in data.keys():
+        data[k.replace('/', '__')] = data.pop(k)
+
     writer = pandas.ExcelWriter(file_name)
     for key in data.keys():
         df = pandas.DataFrame.from_dict(data[key])
