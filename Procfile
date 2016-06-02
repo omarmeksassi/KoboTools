@@ -1,1 +1,1 @@
-web: gunicorn kobotools:app --log-file -
+web: gunicorn kobotools:app --timeout 60000 --log-file -
