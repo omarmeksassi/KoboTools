@@ -35,14 +35,18 @@ def fetch_forms():
 
 @app.route('/download-data/<int:pk>', methods=['POST'])
 def download_data(pk):
-    token = request.form.get('userToken', '')
-    with NamedTemporaryFile(suffix=".xlsx") as temp:
-        kobo_to_excel(pk, token, temp.name)
+    try:
+        token = request.form.get('userToken', '')
+        with NamedTemporaryFile(suffix=".xlsx") as temp:
+            kobo_to_excel(pk, token, temp.name)
 
-        response = send_file(temp.name)
-        temp.delete = True
+            response = send_file(temp.name)
+            temp.delete = True
 
         return response
+    except e:
+        print (e)
+    return ""
 
 
 @app.route('/static/<path:path>')
