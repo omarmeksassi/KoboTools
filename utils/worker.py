@@ -20,7 +20,10 @@ def title_dictionary(children, parent_index=None):
             name_index = "{}".format(str(index + 1).zfill(2))
 
         if 'label' in item and 'name' in item:
-            return_items.append((item['name'], "{} {}".format(name_index, item['label'])))
+            if 'English' in item['label']:
+                return_items.append((item['name'], "{} {}".format(name_index, item['label']['English'])))
+            else:
+                return_items.append((item['name'], "{} {}".format(name_index, item['label'])))
 
         if 'children' in item and item['type'] == 'group':
             return_items += title_dictionary(item['children'], name_index)
@@ -132,7 +135,7 @@ def kobo_to_excel(pk, token, file_name):
         df = pandas.DataFrame.from_dict(data[key])
         if 'instanceID' in df:
             df = df.set_index('instanceID').sort_values(by='start')
-        df.to_excel(writer, sheet_name=key)
+        df.to_excel(writer, sheet_name=key[0:31])
     writer.save()
 
 

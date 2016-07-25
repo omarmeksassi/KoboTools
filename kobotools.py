@@ -44,7 +44,7 @@ def download_data(pk):
             temp.delete = True
 
         return response
-    except e:
+    except Exception as e:
         print (e)
     return ""
 
