@@ -5,7 +5,7 @@ from flask import Flask, send_file, send_from_directory, make_response
 from flask import request
 import requests
 
-from utils.worker import fetch_api_key, kobo_to_excel, ONA_API_URL
+from utils.worker import fetch_api_key, kobo_to_excel, ONA_API_URL, generate_joined
 
 app = Flask(__name__)
 
@@ -32,6 +32,20 @@ def fetch_forms():
     response.headers['content-type'] = "application/json"
     return response
 
+
+@app.route('/download-joined-data/<int:pk>', methods=['POST'])
+def download_joined_data(pk):
+    try:
+        token = request.form.get('userToken', '')
+        with NamedTemporaryFile(suffix=".xlsx") as temp:
+                generate_joined(pk, token, temp)
+                response = send_file(temp.name)
+                temp.delete = True
+
+        return response
+    except Exception as e:
+        print (e)
+    return ""
 
 @app.route('/download-data/<int:pk>', methods=['POST'])
 def download_data(pk):

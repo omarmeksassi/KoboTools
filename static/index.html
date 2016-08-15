@@ -28,9 +28,10 @@
 <div flex layout="column" tabIndex="-1" role="main" class="md-whiteframe">
 
     <md-toolbar layout="row" class="md-whiteframe">
-        <h1>Kobo Data Exporter</h1>
+        <h1>Kobo Tools</h1>
     </md-toolbar>
     <md-content flex>
+
         <md-card>
             <md-card-title>
                 <span class="md-headline">Authentication</span>
@@ -68,6 +69,9 @@
                     </div>
                     <md-button class="md-raised" flex="100" ng-click="ac.downloadData(form.formid)">
                         Download Data
+                    </md-button>
+                    <md-button class="md-raised" flex="100" ng-click="ac.downloadJoinedData(form.formid)">
+                        Download Joined Data
                     </md-button>
                 </div>
             </md-card-content>

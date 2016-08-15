@@ -31,6 +31,70 @@ def title_dictionary(children, parent_index=None):
     return set(return_items)
 
 
+def generate_joined(pk, token, output):
+    from tempfile import NamedTemporaryFile
+    import xlrd
+    import subprocess, urllib
+    ona_api_url = ONA_API_URL
+    headers = {"Authorization": "Token {}".format(token)}
+
+    if ona_api_url.endswith('/'):
+        ona_api_url = ona_api_url[:-1]
+
+    r = requests.get("{}/forms/{}.xlsx".format(ona_api_url, pk), headers=headers, stream=True)
+    content = {}
+    with NamedTemporaryFile(suffix='.xlsx') as temp:
+        b =r.raw.read()
+        temp.write(b)
+        temp.flush()
+        temp.delete = True
+
+        rd = xlrd.open_workbook(temp.name)
+
+
+    for name in rd.sheet_names():
+        content[name] = []
+        sheet = rd.sheet_by_name(name)
+        headers = [sheet.cell_value(0, c) for c in xrange(0, sheet.ncols)]
+        for row in range(1, sheet.nrows):
+            values = [sheet.cell_value(row, c) for c in xrange(0, sheet.ncols)]
+            content[name].append(OrderedDict(zip(headers, values)))
+
+    for key, value in content.iteritems():
+        if value:
+            # _parent_table_name	_parent_index
+            if '_parent_table_name' in value[0]:
+                for r in value:
+                    parent_table = r['_parent_table_name']
+                    parent_index = r['_parent_index']
+
+                    if parent_table in content:
+                        parent_row = [pr for pr in content[parent_table] if parent_index == pr['_index']]
+                        if parent_row:
+                            parent_row = parent_row[0]
+                            key_dictionary = [(parent_table + '/' + k, parent_row[k]) for k in parent_row.keys()]
+                            r.update(dict(key_dictionary))
+
+    import xlsxwriter
+
+    w = xlsxwriter.Workbook(output.name)
+
+    for key, value in content.iteritems():
+        ws = w.add_worksheet(key)
+
+        columns = list(value[0].keys()) # list() is not need in Python 2.x
+
+        for j, col in enumerate(columns):
+            ws.write(0, j, col)
+
+        for i, row in enumerate(value, start=1):
+            for j, col in enumerate(columns, start=1):
+                ws.write(i, j, row[col])
+
+    w.close()
+    output.flush()
+
+
 def do_work(pk, token):
     ona_api_url = ONA_API_URL
     headers = {"Authorization": "Token {}".format(token)}
@@ -126,7 +190,7 @@ def kobo_to_excel(pk, token, file_name):
     import pandas
 
     data = do_work(pk, token)
-    
+
     for k in data.keys():
         data[k.replace('/', '__')] = data.pop(k)
 

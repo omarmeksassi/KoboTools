@@ -3,14 +3,14 @@
     angular
         .module('koboTools')
         .controller('UserController',
-        UserController
-    );
+            UserController
+        );
 
     angular
         .module('koboTools')
         .controller('AppController',
-        AppController
-    );
+            AppController
+        );
 
     function UserController($mdSidenav, $mdBottomSheet, $log, $q, $scope) {
     }
@@ -20,6 +20,7 @@
 
         self.loadForms = loadForms;
         self.downloadData = downloadData;
+        self.downloadJoinedData = downloadJoinedData;
 
         self.user = {
             username: '',
@@ -29,10 +30,20 @@
         self.formAction = "";
 
 
+        function downloadJoinedData(pk) {
+            self.formAction = '/download-joined-data/' + pk;
+            $timeout(function () {
+                $('form[name=downloadForm]').submit();
+            }, 100);
+        }
+
         function loadForms() {
             var authRequest;
             if (!self.user.token) {
-                authRequest = $http.post('/fetch-token', {username: self.user.username, password: self.user.password}).then(function (d) {
+                authRequest = $http.post('/fetch-token', {
+                    username: self.user.username,
+                    password: self.user.password
+                }).then(function (d) {
                     self.user.token = d.data.token;
                 }).catch(function () {
                     alert('Invalid username or password.');
